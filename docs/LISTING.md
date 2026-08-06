@@ -95,9 +95,9 @@ Name + Subtitle + Keywords together. Repeating them would burn characters for no
 
 | Field | Value |
 |---|---|
-| **Support URL** | `https://daniu98.github.io/SmartAlarm/SUPPORT` |
+| **Support URL** | `https://daniu98.github.io/SmartAlarm/support.html` |
 | **Marketing URL** | leave blank |
-| **Privacy Policy URL** | `https://daniu98.github.io/SmartAlarm/PRIVACY` |
+| **Privacy Policy URL** | `https://daniu98.github.io/SmartAlarm/privacy.html` |
 
 Both require GitHub Pages — see *URLs* at the bottom.
 
@@ -193,8 +193,8 @@ Both required URLs can come from the repo you already pushed.
 
 That publishes:
 
-- `https://daniu98.github.io/SmartAlarm/PRIVACY`
-- `https://daniu98.github.io/SmartAlarm/SUPPORT`
+- `https://daniu98.github.io/SmartAlarm/privacy.html`
+- `https://daniu98.github.io/SmartAlarm/support.html`
 
 **The repo must be public** for these to resolve. If you'd rather keep it private, host both
 markdown files anywhere public — a Gist, Notion, Carrd — and use those URLs instead.
