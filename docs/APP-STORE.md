@@ -76,7 +76,17 @@ reject the build for a non-functioning purchase.
 
 ## 5. Screenshots
 
-Required: **6.9" iPhone** (1320 × 2868). Take them on an iPhone 17 Pro Max simulator:
+Ready-made sets are checked in under `AppStoreScreenshots/`:
+
+- `6.5-inch/` — **1284 × 2778** (iPhone 14 Plus)
+- `6.9-inch/` — **1320 × 2868** (iPhone 17 Pro Max)
+
+App Store Connect shows whichever slots your account offers; upload the matching set. Regenerate
+with `-screenshotMode YES`, which stages the app realistically — a simulator can't grant AlarmKit
+permission, so without it every shot carries a permission banner a real device would never show.
+It also hides the Debug tab and seeds a week of plausible history.
+
+Take them on the matching simulator:
 
 ```bash
 xcrun simctl boot "iPhone 17 Pro Max"

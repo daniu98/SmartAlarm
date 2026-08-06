@@ -160,6 +160,12 @@ final class WakePlanner {
             return phase
         }
 
+        // Confidence and traffic condition are derived from data already on disk, so they must
+        // be refreshed even when no check runs. Without this the Today screen reports "no
+        // history" and "traffic unknown" on every launch that skips a check — which is most of
+        // them — despite both being perfectly well known.
+        refreshDerivedState(plan: plan, origin: home)
+
         // Idle means idle — no network, no battery. The exception is the nightly bootstrap,
         // which deliberately runs while idle so a safe alarm exists before you go to sleep.
         let mustQuery = trigger == .nightly || trigger == .manual || !plan.hasComputedWake
@@ -252,6 +258,25 @@ final class WakePlanner {
             workLabel: workLabel,
             allowDestinationOverride: settings.calendarCanOverrideDestination
         )
+    }
+
+    // MARK: - Derived state
+
+    /// Recomputes everything the UI shows that can be derived from local data alone — no
+    /// network, no cost. Safe to call on every refresh, including ones that skip the check.
+    private func refreshDerivedState(plan: AlarmPlan, origin: Coordinate) {
+        let routeKey = Coordinate.routeKey(from: origin, to: plan.destination)
+        let history = historyModel(routeKey: routeKey)
+        routeSampleCount = history.sampleCount
+
+        // A baseline captured after the last check leaves the stored condition stale at
+        // "unknown". Reclassifying costs nothing because the raw estimate was kept.
+        if let raw = plan.lastRawTravelSeconds, let baseline = baselineSeconds(routeKey: routeKey) {
+            plan.lastCondition = TrafficCondition.classify(
+                observedSeconds: raw,
+                freeFlowSeconds: baseline
+            )
+        }
     }
 
     // MARK: - Weather

@@ -276,6 +276,46 @@ struct WakePlannerTests {
         #expect(try harness.context.fetch(FetchDescriptor<RouteBaseline>()).count == 1)
     }
 
+    /// Confidence and traffic condition come from data already on disk. If they were only
+    /// refreshed inside `runCheck`, every launch that skips a check — which is most of them —
+    /// would report "no history" and "traffic unknown" despite both being known.
+    @Test("Derived state is populated even when the check is skipped")
+    func derivedStateSurvivesASkippedCheck() async throws {
+        let harness = try makeHarness(minutes: 45)
+        harness.context.insert(
+            RouteBaseline(
+                routeKey: Coordinate.routeKey(from: home, to: work),
+                freeFlowSeconds: Fixture.minutes(30),
+                distanceMeters: 50_000
+            )
+        )
+        for index in 0..<8 {
+            harness.context.insert(
+                TravelSample(
+                    routeKey: Coordinate.routeKey(from: home, to: work),
+                    weekday: 2 + (index % 5),
+                    minuteOfDay: 8 * 60,
+                    seconds: Fixture.minutes(40 + Double(index)),
+                    recordedAt: .now
+                )
+            )
+        }
+        try harness.context.save()
+
+        await harness.planner.refresh(trigger: .manual)
+        #expect(harness.planner.routeSampleCount == 8)
+        #expect(harness.planner.currentPlan?.lastCondition == .heavy)
+
+        // An idle background trigger does no check at all — and must still report both.
+        let callsBefore = await harness.traffic.callCount
+        await harness.planner.refresh(trigger: .background)
+
+        #expect(await harness.traffic.callCount == callsBefore)
+        #expect(harness.planner.currentPhase == .idle)
+        #expect(harness.planner.routeSampleCount == 8)
+        #expect(harness.planner.currentPlan?.lastCondition == .heavy)
+    }
+
     // MARK: - Settings changes
 
     /// Editing get-ready time changes the arithmetic, not the traffic. Re-querying MapKit for
