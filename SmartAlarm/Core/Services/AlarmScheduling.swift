@@ -17,7 +17,7 @@ enum AlarmSchedulingError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .notAuthorized: "SmartAlarm needs permission to set alarms."
+        case .notAuthorized: "SmartyAlarm needs permission to set alarms."
         case .limitReached: "Too many alarms are already scheduled."
         case .failed(let detail): "Couldn't set the alarm: \(detail)"
         }

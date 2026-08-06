@@ -72,7 +72,7 @@ struct PaywallView: View {
                     Text("One payment, yours for good — no subscription. Everything still runs on your phone; there's no account and no server.")
                 }
             }
-            .navigationTitle("SmartAlarm Pro")
+            .navigationTitle("SmartyAlarm Pro")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

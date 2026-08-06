@@ -362,7 +362,7 @@ struct SetupView: View {
     private var proSection: some View {
         Section {
             if isPro {
-                Label("SmartAlarm Pro is unlocked", systemImage: "checkmark.seal.fill")
+                Label("SmartyAlarm Pro is unlocked", systemImage: "checkmark.seal.fill")
                     .foregroundStyle(.green)
             } else {
                 Button {

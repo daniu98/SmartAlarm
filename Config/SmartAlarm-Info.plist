@@ -3,13 +3,13 @@
 <plist version="1.0">
 <dict>
 	<key>NSAlarmKitUsageDescription</key>
-	<string>SmartAlarm schedules a system alarm so it can wake you reliably, even if the app is closed and your phone is silenced.</string>
+	<string>SmartyAlarm schedules a system alarm so it can wake you reliably, even if the app is closed and your phone is silenced.</string>
 
 	<key>NSCalendarsFullAccessUsageDescription</key>
-	<string>SmartAlarm reads your morning events so it can wake you earlier when your first commitment starts sooner than usual, or is somewhere other than work.</string>
+	<string>SmartyAlarm reads your morning events so it can wake you earlier when your first commitment starts sooner than usual, or is somewhere other than work.</string>
 
 	<key>NSRemindersFullAccessUsageDescription</key>
-	<string>SmartAlarm checks for high-priority reminders due in the morning so it can add extra buffer on important days.</string>
+	<string>SmartyAlarm checks for high-priority reminders due in the morning so it can add extra buffer on important days.</string>
 
 	<key>NSSupportsLiveActivities</key>
 	<true/>

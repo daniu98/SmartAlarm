@@ -1,8 +1,8 @@
-# SmartAlarm Privacy Policy
+# SmartyAlarm Privacy Policy
 
 _Last updated: 6 August 2026_
 
-**SmartAlarm collects nothing. There is no account, no server, and no analytics.**
+**SmartyAlarm collects nothing. There is no account, no server, and no analytics.**
 
 Everything the app knows about you lives in a database on your iPhone and is deleted when you
 delete the app. The developer cannot see any of it, because it is never sent anywhere.
@@ -32,7 +32,7 @@ The developer operates no servers and receives none of this data.
 
 ## Permissions the app asks for
 
-- **Alarms** — required. SmartAlarm uses a system alarm so it rings even when the app is closed
+- **Alarms** — required. SmartyAlarm uses a system alarm so it rings even when the app is closed
   and your phone is silenced.
 - **Calendar** — optional, Pro. Read-only. Used to find your first commitment of the morning so
   the alarm can move *earlier*. Events are never stored or transmitted.
@@ -44,12 +44,12 @@ between the two addresses you typed in.
 
 ## Purchases
 
-SmartAlarm Pro is a one-time purchase handled entirely by Apple. The developer never sees your
+SmartyAlarm Pro is a one-time purchase handled entirely by Apple. The developer never sees your
 payment details. Whether you own Pro is checked against the App Store on your device.
 
 ## Children
 
-SmartAlarm is not directed at children and collects no personal information from anyone.
+SmartyAlarm is not directed at children and collects no personal information from anyone.
 
 ## Changes
 

@@ -27,8 +27,12 @@ struct RootView: View {
                 HistoryView()
             }
             #if DEBUG
-            Tab("Debug", systemImage: "ladybug", value: "debug") {
-                DebugView()
+            // Hidden under -screenshotMode: a Debug tab in a store screenshot looks like a
+            // build that shipped by accident.
+            if !ScreenshotMode.isEnabled {
+                Tab("Debug", systemImage: "ladybug", value: "debug") {
+                    DebugView()
+                }
             }
             #endif
         }

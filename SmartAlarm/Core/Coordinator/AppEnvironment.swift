@@ -28,6 +28,21 @@ final class AppEnvironment {
         RouteBaseline.self,
     ])
 
+    /// Pinned explicitly, and deliberately *not* left to SwiftData's default.
+    ///
+    /// `NSPersistentContainer.defaultDirectoryURL()` prefers an App Group container when the
+    /// app has one. Adding the App Groups entitlement for the widget silently relocated the
+    /// store — harmless before launch, but on a shipped app any later change to that
+    /// entitlement (added, removed, or failing to provision) would move the store and every
+    /// user's settings and history would appear to vanish. Naming the path removes that
+    /// coupling entirely: the store lives in the app's own container regardless of
+    /// entitlements, and the widget reads a snapshot rather than the database.
+    static func storeURL() -> URL {
+        let directory = URL.applicationSupportDirectory
+        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        return directory.appending(path: "SmartAlarm.store")
+    }
+
     init(inMemory: Bool = false) {
         let schema = Self.schema
         var fallback = false
@@ -37,10 +52,10 @@ final class AppEnvironment {
         // that won't open or migrate degrades to in-memory instead of trapping.
         func makeContainer() -> ModelContainer {
             do {
-                return try ModelContainer(
-                    for: schema,
-                    configurations: [ModelConfiguration(schema: schema, isStoredInMemoryOnly: inMemory)]
-                )
+                let configuration = inMemory
+                    ? ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+                    : ModelConfiguration(schema: schema, url: Self.storeURL())
+                return try ModelContainer(for: schema, configurations: [configuration])
             } catch {
                 AppLogger.planner.fault(
                     "Persistent store unavailable (\(error.localizedDescription, privacy: .public)); falling back to in-memory."
@@ -58,8 +73,17 @@ final class AppEnvironment {
         isRunningOnFallbackStore = fallback
 
         let clock = DateProvider()
-        let alarms = AlarmKitScheduler()
         let calendarProvider = EventKitCalendarProvider()
+
+        #if DEBUG
+        // Screenshots only: a simulator can't grant AlarmKit permission, and a permission
+        // banner in a store screenshot would misrepresent the app on a real device.
+        let alarms: any AlarmScheduling = ScreenshotMode.isEnabled
+            ? ScreenshotAlarmScheduler()
+            : AlarmKitScheduler()
+        #else
+        let alarms: any AlarmScheduling = AlarmKitScheduler()
+        #endif
 
         self.clock = clock
         self.alarms = alarms
@@ -120,8 +144,15 @@ final class AppEnvironment {
 
     private func performForegroundRefresh() async {
         #if DEBUG
-        if DebugSeed.isRequestedAtLaunch {
+        if DebugSeed.isRequestedAtLaunch || ScreenshotMode.isEnabled {
             DebugSeed.apply(to: planner.settings(), context: modelContainer.mainContext)
+        }
+        if ScreenshotMode.isEnabled {
+            ScreenshotMode.seed(
+                context: modelContainer.mainContext,
+                home: DebugSeed.home,
+                work: DebugSeed.work
+            )
         }
         #endif
         refreshAlarmAuthorization()

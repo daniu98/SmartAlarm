@@ -135,7 +135,7 @@ private struct WakeTimeWidgetView: View {
         case .accessoryRectangular:
             VStack(alignment: .leading) {
                 Text("No alarm").font(.headline)
-                Text("Open SmartAlarm").font(.caption2).foregroundStyle(.secondary)
+                Text("Open SmartyAlarm").font(.caption2).foregroundStyle(.secondary)
             }
         default:
             VStack(spacing: 6) {

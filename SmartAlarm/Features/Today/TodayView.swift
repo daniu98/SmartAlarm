@@ -473,7 +473,7 @@ private struct AlarmPermissionRow: View {
         VStack(alignment: .leading, spacing: 8) {
             Label("Alarm permission needed", systemImage: "bell.badge")
                 .font(.subheadline.weight(.medium))
-            Text("SmartAlarm uses a system alarm so it rings even when the app is closed and the phone is silenced.")
+            Text("SmartyAlarm uses a system alarm so it rings even when the app is closed and the phone is silenced.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             Button("Grant permission") {
@@ -491,7 +491,7 @@ private struct NeedsSetupView: View {
         ContentUnavailableView {
             Label("Set up your commute", systemImage: "map")
         } description: {
-            Text("Add your home and work addresses in Setup, and SmartAlarm will work backwards from when you need to arrive.")
+            Text("Add your home and work addresses in Setup, and SmartyAlarm will work backwards from when you need to arrive.")
         }
     }
 }
