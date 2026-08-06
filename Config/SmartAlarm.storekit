@@ -1,0 +1,28 @@
+{
+  "identifier" : "A1B2C3D4",
+  "nonRenewingSubscriptions" : [],
+  "products" : [
+    {
+      "displayPrice" : "7.99",
+      "familyShareable" : true,
+      "internalID" : "PRO0000001",
+      "localizations" : [
+        {
+          "description" : "Calendar-aware mornings, weather padding, per-day arrival times and full history.",
+          "displayName" : "SmartAlarm Pro",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.danielxiao.SmartAlarm.pro",
+      "referenceName" : "SmartAlarm Pro",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_applicationInternalID" : "SMARTALARM",
+    "_developerTeamID" : "",
+    "_lastSynchronizedDate" : 0
+  },
+  "subscriptionGroups" : [],
+  "version" : { "major" : 4, "minor" : 0 }
+}
