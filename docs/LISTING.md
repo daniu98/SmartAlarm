@@ -122,31 +122,48 @@ holder. Not the app name. No © symbol, no URL.
 **Notes** — the most important field on this page. Your app's whole point is an alarm hours
 away; without this a reviewer sees nothing happen and marks it non-functional.
 
+This version is expanded to pre-empt a Guideline 2.1 information request — Apple asked for all
+of it on the first submission and said to include it in Notes from then on. See
+[`REVIEW-REPLY.md`](REVIEW-REPLY.md) for the long-form answers.
+
 ```
-SmartyAlarm computes a wake time by working backwards from when you need to arrive, using live traffic. No account or login is needed.
+SmartyAlarm computes a wake time by working backwards from when you need to arrive, using live traffic. No account, no login, no sample files.
 
-FASTEST WAY TO SEE AN ALARM FIRE (about 60 seconds)
-1. Setup tab — enter any two addresses, tap "Look up address" on each.
-2. Today tab — grant the alarm permission.
-3. Tap "Ring a test alarm in 1 minute". Lock the device and set the ringer to silent; it will still ring, which is the core of what the app does.
+WHAT IT DOES AND FOR WHOM
+A fixed alarm assumes a fixed commute, but real commutes vary 15-40 minutes with traffic. The user enters home, work and the time they must arrive; the app queries Apple Maps for a traffic-aware estimate for that future departure time and works backwards to a wake time, then schedules a real system alarm. It re-checks traffic as the morning approaches and moves the alarm earlier if the drive worsens. For commuters who drive to a workplace with a hard start time. Rated 4+.
 
-TO SEE THE FULL TRAFFIC CALCULATION
-1. Use two addresses roughly 10 minutes' drive apart.
-2. Set "Usual arrival" to about 20 minutes from now, "Get ready" to 5 minutes, "Arrival buffer" to 0.
-3. Turn on "Alarm armed" on the Today tab.
-The alarm lands about 10 minutes out. "Why this time?" itemises every minute of the calculation.
+SETUP (about 30 seconds)
+1. Setup tab: enter any two addresses, tap "Look up address" under each.
+2. Today tab: tap "Grant permission" for alarms, then turn on "Alarm armed".
 
-BACKGROUND MODES
-fetch and processing re-check traffic as the wake window approaches and move the alarm earlier if the commute deteriorates. This is the core function of the app, not a background refresh for content.
+TO SEE AN ALARM FIRE IN ABOUT 60 SECONDS
+Today tab, tap "Ring a test alarm in 1 minute". Lock the device, set the ringer to silent. It still rings. This button exists because the app's real behaviour is otherwise hours away.
 
-ALARMKIT
-Used so the alarm rings reliably when the app is closed and the phone is silenced — the same reason the system Clock app does.
-
-CALENDAR AND REMINDERS
-Optional, read-only, and Pro-only. The app is fully functional without granting either.
+TO SEE THE FULL CALCULATION
+Use addresses about 10 minutes apart, set "Usual arrival" to 20 minutes from now, "Get ready" to 5, "Arrival buffer" to 0. The alarm lands about 10 minutes out. "Why this time?" itemises every minute.
 
 IN-APP PURCHASE
-One non-consumable, "SmartyAlarm Pro" (com.danielxiao.SmartAlarm.pro). The alarm itself is free; Pro adds calendar awareness, weather padding, per-day arrival times and full history. "Restore purchase" is on the paywall screen.
+One non-consumable, "SmartyAlarm Pro" (com.danielxiao.SmartAlarm.pro). Any row marked PRO in Setup opens the upgrade screen. "Restore purchase" is on that screen. The alarm itself is free and fully functional without it.
+
+PERMISSIONS
+Alarms: required, so it rings when the app is closed and the phone is silenced.
+Calendar and Reminders: optional, read-only, Pro only. The app works fully if both are denied.
+Location: never requested.
+
+EXTERNAL SERVICES
+Apple frameworks only. No third-party SDKs, analytics, advertising, AI services or backend. MapKit for routing and geocoding, WeatherKit for forecast padding (Pro), AlarmKit for the alarms, EventKit for optional calendar reads, StoreKit 2 for the purchase, SwiftData for local storage, BackgroundTasks for re-checks. The developer operates no servers and receives no user data.
+
+BACKGROUND MODES
+fetch and processing re-check traffic as the wake window approaches and move the alarm earlier if the commute deteriorates. This is the core function of the app, not content refresh.
+
+ALARMKIT
+Used so the alarm rings reliably when the app is closed and the phone is silenced, the same reason the system Clock app does.
+
+REGIONAL DIFFERENCES
+None. Behaviour is identical everywhere; times and distances follow device locale. Coverage matches Apple Maps and WeatherKit coverage. English only.
+
+REGULATED INDUSTRY / PROTECTED MATERIAL
+Not applicable. All map and weather data comes from Apple's own frameworks under the standard Apple Developer Program License Agreement. All other content is original.
 ```
 
 ### Version Release
