@@ -37,6 +37,14 @@ final class WakePlanner {
     /// running on a cold-start default, which the user deserves to know.
     private(set) var routeSampleCount = 0
     private(set) var testAlarmFiresAt: Date?
+    /// When this app last wrote to AlarmKit itself.
+    ///
+    /// AlarmKit publishes its alarm list on every change, including the app's own writes, and
+    /// the app listens to that stream so a Stop or Snooze tapped on the Lock Screen is picked
+    /// up. Those two facts together are a feedback loop: a check reschedules, the reschedule
+    /// publishes, the publish triggers another check. This timestamp is how the listener tells
+    /// its own echo apart from a genuine outside change.
+    private(set) var lastAlarmWriteAt: Date?
 
     /// Debug hook: when set, replaces the traffic provider for the next checks.
     var injectedTravelMinutes: Double?
@@ -645,6 +653,23 @@ final class WakePlanner {
 
     // MARK: - Alarm scheduling
 
+    /// Stamped around every AlarmKit mutation, so `AppEnvironment` can ignore the update the
+    /// mutation itself provokes. See `lastAlarmWriteAt`.
+    private func noteAlarmWrite() {
+        lastAlarmWriteAt = clock.now
+    }
+
+    /// How long after one of the app's own writes an AlarmKit update is treated as that
+    /// write's echo rather than news. Long enough to cover the round trip, short enough that
+    /// a Stop tapped a moment later is still seen.
+    static let selfWriteEchoWindow: TimeInterval = 3
+
+    /// True when an AlarmKit update arriving now is most likely this app's own doing.
+    func isEchoOfOwnWrite(at instant: Date) -> Bool {
+        guard let lastAlarmWriteAt else { return false }
+        return instant.timeIntervalSince(lastAlarmWriteAt) < Self.selfWriteEchoWindow
+    }
+
     private func ensureAlarmScheduled(plan: AlarmPlan, settings: UserSettings) async {
         guard alarms.authorization.isAuthorized else {
             // The Today screen already prompts for permission, so this isn't surfaced twice.
@@ -669,6 +694,7 @@ final class WakePlanner {
                     // you past the moment you had to be in the car.
                     snoozeMinutes: plan.effectiveSnoozeMinutes(preferred: settings.snoozeMinutes)
                 )
+                noteAlarmWrite()
                 plan.isAlarmScheduled = true
             } catch {
                 plan.isAlarmScheduled = false
@@ -688,6 +714,7 @@ final class WakePlanner {
                     metadata: metadata,
                     snoozeMinutes: 0
                 )
+                noteAlarmWrite()
                 plan.isLeaveAlarmScheduled = true
             } catch {
                 plan.isLeaveAlarmScheduled = false
@@ -702,6 +729,7 @@ final class WakePlanner {
             // The wake alarm deliberately gets no equivalent treatment: it may be ringing
             // right now, and cancelling a ringing alarm is how you oversleep.
             try? alarms.cancel(id: plan.leaveAlarmIdentifier)
+            noteAlarmWrite()
             plan.isLeaveAlarmScheduled = false
         }
 
@@ -719,6 +747,7 @@ final class WakePlanner {
         for plan in plans {
             try? alarms.cancel(id: plan.alarmIdentifier)
             try? alarms.cancel(id: plan.leaveAlarmIdentifier)
+            noteAlarmWrite()
             plan.isAlarmScheduled = false
             plan.isLeaveAlarmScheduled = false
         }
@@ -811,7 +840,7 @@ final class WakePlanner {
     @discardableResult
     func scheduleTestAlarm(inSeconds seconds: TimeInterval = 60) async -> Bool {
         guard alarms.authorization.isAuthorized else {
-            schedulingErrorMessage = "SmartAlarm needs permission to set alarms first."
+            schedulingErrorMessage = "SmartyAlarm needs permission to set alarms first."
             return false
         }
         let fireDate = clock.now.addingTimeInterval(seconds)
@@ -829,6 +858,7 @@ final class WakePlanner {
                 ),
                 snoozeMinutes: 0
             )
+            noteAlarmWrite()
             testAlarmFiresAt = fireDate
             schedulingErrorMessage = nil
             return true
@@ -840,6 +870,7 @@ final class WakePlanner {
 
     func cancelTestAlarm() {
         try? alarms.cancel(id: Self.testAlarmIdentifier)
+        noteAlarmWrite()
         testAlarmFiresAt = nil
     }
 

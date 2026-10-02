@@ -477,7 +477,19 @@ private struct AlarmPermissionRow: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
             Button("Grant permission") {
-                Task { await appEnvironment.requestAlarmAuthorization() }
+                Task {
+                    let result = await appEnvironment.requestAlarmAuthorization()
+                    // Permission was the only thing between an already-computed plan and a
+                    // real system alarm: `ensureAlarmScheduled` bails out when it isn't
+                    // granted. Without this the banner disappears and the alarm still isn't
+                    // registered until the app next returns to the foreground — an armed
+                    // alarm that silently wouldn't ring. The trigger is deliberately
+                    // `.foreground`, which registers the existing plan without spending a
+                    // fresh MapKit request.
+                    if result.isAuthorized {
+                        await appEnvironment.planner.refresh(trigger: .foreground)
+                    }
+                }
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.small)

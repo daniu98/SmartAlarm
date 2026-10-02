@@ -81,6 +81,50 @@ struct WakePlanSnapshotTests {
         #expect(old.isStale(now: Fixture.date(hour: 12)))
     }
 
+    // MARK: - Timeline reloads
+
+    /// WidgetKit's reload budget is finite and spending it gets the widget throttled into
+    /// showing stale times — the exact failure the reload policy exists to avoid.
+    @Test("A wake time that has already passed does not ask for a reload every minute")
+    func pastWakeTimeDoesNotHammerTheReloadBudget() {
+        let now = Fixture.date(hour: 9)
+        // The morning is over and only the app can compute the next one.
+        let next = WakePlanSnapshot.nextReload(after: now, wakeDate: Fixture.date(hour: 7))
+        #expect(next == now.addingTimeInterval(WakePlanSnapshot.reloadInterval))
+    }
+
+    @Test("A wake time inside the hour is reloaded at the wake time itself")
+    func imminentWakeTimeReloadsOnTime() {
+        let now = Fixture.date(hour: 6, minute: 30)
+        let wake = Fixture.date(hour: 7)
+        #expect(WakePlanSnapshot.nextReload(after: now, wakeDate: wake) == wake)
+    }
+
+    @Test("A distant wake time falls back to the hourly beat")
+    func distantWakeTimeUsesTheHourlyBeat() {
+        let now = Fixture.date(hour: 1)
+        let next = WakePlanSnapshot.nextReload(after: now, wakeDate: Fixture.date(hour: 7))
+        #expect(next == now.addingTimeInterval(WakePlanSnapshot.reloadInterval))
+    }
+
+    @Test("A missing snapshot still reloads on the hourly beat")
+    func missingSnapshotUsesTheHourlyBeat() {
+        let now = Fixture.date(hour: 1)
+        #expect(WakePlanSnapshot.nextReload(after: now, wakeDate: nil)
+            == now.addingTimeInterval(WakePlanSnapshot.reloadInterval))
+    }
+
+    @Test("A reload is never requested sooner than the minimum interval")
+    func reloadRespectsMinimumInterval() {
+        let now = Fixture.date(hour: 7)
+        // A wake time seconds away must not become a sub-minute reload request.
+        let next = WakePlanSnapshot.nextReload(
+            after: now,
+            wakeDate: now.addingTimeInterval(5)
+        )
+        #expect(next == now.addingTimeInterval(WakePlanSnapshot.minimumReloadInterval))
+    }
+
     /// The App Group can legitimately be missing — unsigned builds, a bad provisioning
     /// profile. Every path has to degrade rather than trap, because a crashed alarm app is
     /// infinitely worse than a missing widget.

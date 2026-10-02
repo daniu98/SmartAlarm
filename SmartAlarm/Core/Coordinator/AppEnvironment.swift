@@ -182,9 +182,17 @@ final class AppEnvironment {
 
     /// Keeps app state in step with actions taken from the Lock Screen or Dynamic Island,
     /// which happen entirely outside the app's process.
+    ///
+    /// AlarmKit publishes its alarm list on *every* change, which includes the rescheduling
+    /// the planner does at the end of each check. Reacting to those indiscriminately is a
+    /// feedback loop — check, reschedule, publish, check — that spins for as long as the app
+    /// is open inside the watch window, burning MapKit's request budget and writing a History
+    /// row per lap. So an update arriving on the heels of the app's own write is treated as
+    /// that write's echo and dropped; anything else is a real outside change and refreshes.
     func observeAlarmUpdates() async {
         for await _ in AlarmKitScheduler.alarmUpdates() {
             refreshAlarmAuthorization()
+            guard !planner.isEchoOfOwnWrite(at: clock.now) else { continue }
             await planner.refresh(trigger: .foreground)
         }
     }

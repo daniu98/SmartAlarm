@@ -52,12 +52,16 @@ actor MapKitTrafficProvider: TrafficProviding {
         request.requestsAlternateRoutes = true
 
         let directions = MKDirections(request: request)
+        // Stamped however the request ends. Recording it only on success would mean a
+        // throttled request left no trace, so the *next* call would skip the spacing wait
+        // entirely and fire immediately into the throttle that just rejected us — the one
+        // moment the spacing is actually needed.
+        defer { lastRequestFinishedAt = .now }
         // `calculate()` rather than the lighter `calculateETA()`: same request count against
         // MapKit's throttle, but it also returns `advisoryNotices` ("Avoid during winter
         // storms") and the alternate routes — signal we were previously paying for and
         // discarding.
         let response = try await directions.calculate()
-        lastRequestFinishedAt = .now
 
         let sorted = response.routes.sorted { $0.expectedTravelTime < $1.expectedTravelTime }
         guard let best = sorted.first, best.expectedTravelTime > 0 else {

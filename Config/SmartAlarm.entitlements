@@ -6,5 +6,13 @@
 	<array>
 		<string>group.com.danielxiao.SmartAlarm</string>
 	</array>
+
+	<!-- WeatherKit is a Pro feature and the app calls WeatherService directly, which fails
+	     with an authentication error unless the App ID carries this capability. Without it
+	     the forecast padding silently resolves to "clear" on every morning — the feature is
+	     advertised, charged for, and does nothing. Enabling WeatherKit for the App ID in
+	     the Developer portal is required for this entitlement to provision. -->
+	<key>com.apple.developer.weatherkit</key>
+	<true/>
 </dict>
 </plist>

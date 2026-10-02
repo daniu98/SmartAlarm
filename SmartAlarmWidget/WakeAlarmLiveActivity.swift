@@ -115,9 +115,10 @@ private struct ModeDetailView: View {
     var body: some View {
         switch context.state.mode {
         case .alert:
-            Text("Time to get up")
-                .font(.title2)
-                .fontWeight(.semibold)
+            // The alarm's own title, not a fixed string: the same Live Activity draws the
+            // leave-by alarm and the test alarm, and telling someone to "get up" as they
+            // are walking out of the door is worse than saying nothing.
+            alertTitle
         case .countdown(let countdown):
             VStack(alignment: .leading, spacing: 2) {
                 Text("Snoozed")
@@ -132,10 +133,14 @@ private struct ModeDetailView: View {
                 .font(.title3)
                 .foregroundStyle(.secondary)
         @unknown default:
-            Text("Time to get up")
-                .font(.title2)
-                .fontWeight(.semibold)
+            alertTitle
         }
+    }
+
+    private var alertTitle: some View {
+        Text(context.attributes.presentation.alert.title)
+            .font(.title2)
+            .fontWeight(.semibold)
     }
 }
 

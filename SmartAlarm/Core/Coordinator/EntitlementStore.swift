@@ -104,7 +104,7 @@ final class MockPurchaseProvider: PurchaseProviding, @unchecked Sendable {
     func loadProduct() async throws -> StoreProduct? {
         StoreProduct(
             id: StoreKitPurchaseProvider.proProductID,
-            displayName: "SmartAlarm Pro",
+            displayName: "SmartyAlarm Pro",
             displayPrice: "$7.99",
             description: "Calendar, weather and full history."
         )

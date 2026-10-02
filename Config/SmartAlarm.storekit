@@ -9,12 +9,12 @@
       "localizations" : [
         {
           "description" : "Calendar-aware mornings, weather padding, per-day arrival times and full history.",
-          "displayName" : "SmartAlarm Pro",
+          "displayName" : "SmartyAlarm Pro",
           "locale" : "en_US"
         }
       ],
       "productID" : "com.danielxiao.SmartAlarm.pro",
-      "referenceName" : "SmartAlarm Pro",
+      "referenceName" : "SmartyAlarm Pro",
       "type" : "NonConsumable"
     }
   ],

@@ -123,6 +123,31 @@ struct WakePlannerTests {
         #expect(harness.alarms.cancelled.isEmpty)
     }
 
+    /// AlarmKit republishes its alarm list on every write, including the planner's own
+    /// rescheduling, and the app listens to that stream to catch Lock Screen taps. Without a
+    /// way to recognise its own echo, each check would trigger another check for as long as
+    /// the app stayed open inside the watch window.
+    @Test("The planner can tell its own AlarmKit writes apart from an outside change")
+    func ownAlarmWritesAreRecognisedAsEchoes() async throws {
+        let harness = try makeHarness(minutes: 20)
+        #expect(harness.planner.lastAlarmWriteAt == nil)
+        // Nothing written yet, so nothing can be mistaken for an echo.
+        #expect(!harness.planner.isEchoOfOwnWrite(at: harness.clock.now))
+
+        await harness.planner.refresh(trigger: .manual)
+
+        let wroteAt = try #require(harness.planner.lastAlarmWriteAt)
+        // The update the planner's own reschedule provokes arrives immediately.
+        #expect(harness.planner.isEchoOfOwnWrite(at: wroteAt))
+        #expect(harness.planner.isEchoOfOwnWrite(
+            at: wroteAt.addingTimeInterval(WakePlanner.selfWriteEchoWindow - 0.5)
+        ))
+        // A Stop tapped on the Lock Screen a moment later is real news, not an echo.
+        #expect(!harness.planner.isEchoOfOwnWrite(
+            at: wroteAt.addingTimeInterval(WakePlanner.selfWriteEchoWindow + 0.5)
+        ))
+    }
+
     // MARK: - The leave-by backstop
 
     @Test("Every morning gets both a wake alarm and a leave-by alarm")

@@ -41,11 +41,9 @@ struct WakeTimeWidget: Widget {
             let entry = Entry(date: .now, snapshot: snapshot)
 
             // The app reloads timelines whenever the plan moves, so this is only a backstop
-            // for the case where background refreshes never run. Waking at the alarm itself
-            // keeps the widget from showing a time that has already passed.
-            let next = snapshot.map { min($0.wakeDate, Date.now.addingTimeInterval(3600)) }
-                ?? Date.now.addingTimeInterval(3600)
-            completion(Timeline(entries: [entry], policy: .after(max(next, .now.addingTimeInterval(60)))))
+            // for the case where background refreshes never run.
+            let next = WakePlanSnapshot.nextReload(after: .now, wakeDate: snapshot?.wakeDate)
+            completion(Timeline(entries: [entry], policy: .after(next)))
         }
     }
 }

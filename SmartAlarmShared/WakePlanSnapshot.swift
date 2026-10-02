@@ -39,6 +39,28 @@ struct WakePlanSnapshot: Codable, Sendable, Hashable {
     func isStale(now: Date = .now) -> Bool {
         now.timeIntervalSince(updatedAt) > Self.freshnessWindow
     }
+
+    /// The regular beat the widget falls back to when nothing more interesting is coming up.
+    static let reloadInterval: TimeInterval = 60 * 60
+    /// Never ask WidgetKit to come back sooner than this.
+    static let minimumReloadInterval: TimeInterval = 60
+
+    /// When the widget should ask for a fresh timeline.
+    ///
+    /// WidgetKit allows a limited number of reloads per day and throttles a widget that asks
+    /// for more, which leaves it showing times from hours ago. So the next reload lands at
+    /// the wake time itself — the one moment the displayed time stops being true — or on the
+    /// hourly beat, whichever comes first.
+    ///
+    /// A wake time that has *already* passed is deliberately not a reason to reload sooner.
+    /// The morning is over, the next one can only be computed by the app, and clamping a past
+    /// date into the future would otherwise ask for a reload every single minute until the
+    /// app next ran — spending the whole day's budget before breakfast.
+    static func nextReload(after now: Date, wakeDate: Date?) -> Date {
+        let beat = now.addingTimeInterval(reloadInterval)
+        let candidate = if let wakeDate, wakeDate > now { min(wakeDate, beat) } else { beat }
+        return max(candidate, now.addingTimeInterval(minimumReloadInterval))
+    }
 }
 
 /// The App Group bridge between the app and its widget.
